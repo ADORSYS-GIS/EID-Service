@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, CheckCircle2, Loader2, ChevronRight } from 'lucide-react';
+import { CheckCircle2, Loader2, ChevronRight } from 'lucide-react';
 import type { AuthenticationConfig, OperationsRequest, AttributeRequestType, EIDTypeSelection, LevelOfAssurance } from '@/types/eid';
 
 const attributeLabels: Record<keyof OperationsRequest, string> = {
@@ -62,17 +62,27 @@ export default function Home() {
     PlaceVerification: 'PROHIBITED',
   });
 
-  const [ageVerification, setAgeVerification] = useState({
+  const [ageVerification, setAgeVerification] = useState<{
+    enabled: boolean;
+    age: number;
+  }>({
     enabled: false,
     age: 18,
   });
 
-  const [placeVerification, setPlaceVerification] = useState({
+  const [placeVerification, setPlaceVerification] = useState<{
+    enabled: boolean;
+    communityId: string;
+  }>({
     enabled: false,
     communityId: '027605',
   });
 
-  const [transactionAttestation, setTransactionAttestation] = useState({
+  const [transactionAttestation, setTransactionAttestation] = useState<{
+    enabled: boolean;
+    format: string;
+    context: string;
+  }>({
     enabled: false,
     format: 'http://bsi.bund.de/eID/ExampleAttestationFormat',
     context: 'id599456-df',
@@ -80,12 +90,20 @@ export default function Home() {
 
   const [levelOfAssurance, setLevelOfAssurance] = useState<LevelOfAssurance | ''>('');
 
-  const [transactionInfo, setTransactionInfo] = useState({
+  const [transactionInfo, setTransactionInfo] = useState<{
+    enabled: boolean;
+    info: string;
+  }>({
     enabled: false,
     info: 'Example transaction',
   });
 
-  const [eidTypes, setEidTypes] = useState({
+  const [eidTypes, setEidTypes] = useState<{
+    CardCertified: boolean;
+    SECertified: boolean;
+    SEEndorsed: boolean;
+    HWKeyStore: boolean;
+  }>({
     CardCertified: false,
     SECertified: false,
     SEEndorsed: false,
@@ -96,11 +114,11 @@ export default function Home() {
     key: keyof OperationsRequest,
     value: AttributeRequestType
   ) => {
-    setOperations((prev) => ({ ...prev, [key]: value }));
+    setOperations((prev: OperationsRequest) => ({ ...prev, [key]: value }));
   };
 
-  const handleEidTypeChange = (key: string, checked: boolean) => {
-    setEidTypes((prev) => ({ ...prev, [key]: checked }));
+  const handleEidTypeChange = (key: keyof typeof eidTypes, checked: boolean) => {
+    setEidTypes((prev: typeof eidTypes) => ({ ...prev, [key]: checked }));
   };
 
   const startAuthentication = async () => {
@@ -162,8 +180,8 @@ export default function Home() {
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-gray-200/50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-7 h-7 text-blue-600" />
-            <h1 className="text-2xl font-semibold text-gray-900">eID Test Service</h1>
+            <img src="/adorsys-logo.png" alt="adorsys logo" className="w-8 h-8" />
+            <h1 className="text-2xl font-semibold text-gray-900">eID Service</h1>
           </div>
         </div>
       </header>
@@ -195,20 +213,20 @@ export default function Home() {
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Personal Data Operations</h3>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {Object.entries(operations).map(([key, value]) => (
+              {(Object.keys(operations) as Array<keyof OperationsRequest>).map((key) => (
                 <div key={key} className="flex flex-col gap-1.5">
                   <label className="text-xs font-medium text-gray-700">
-                    {attributeLabels[key as keyof OperationsRequest]}
+                    {attributeLabels[key]}
                   </label>
                   <select
-                    value={value}
+                    value={operations[key]}
                     onChange={(e) =>
                       handleOperationChange(
-                        key as keyof OperationsRequest,
+                        key,
                         e.target.value as AttributeRequestType
                       )
                     }
-                    className={`px-3 py-2 backdrop-blur-sm border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all ${getSelectColor(value)}`}
+                    className={`px-3 py-2 backdrop-blur-sm border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all ${getSelectColor(operations[key])}`}
                   >
                     <option value="PROHIBITED">Prohibited</option>
                     <option value="ALLOWED">Allowed</option>
@@ -234,7 +252,7 @@ export default function Home() {
                 <input
                   type="checkbox"
                   checked={ageVerification.enabled}
-                  onChange={(e) => setAgeVerification(prev => ({ ...prev, enabled: e.target.checked }))}
+                  onChange={(e) => setAgeVerification((prev: typeof ageVerification) => ({ ...prev, enabled: e.target.checked }))}
                   className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                 />
                 <span className="text-sm font-semibold text-gray-900">Age Verification</span>
@@ -247,7 +265,7 @@ export default function Home() {
                   <input
                     type="number"
                     value={ageVerification.age}
-                    onChange={(e) => setAgeVerification(prev => ({ ...prev, age: parseInt(e.target.value) || 18 }))}
+                    onChange={(e) => setAgeVerification((prev: typeof ageVerification) => ({ ...prev, age: parseInt(e.target.value) || 18 }))}
                     className="w-full px-3 py-2 bg-white/50 border border-gray-300/50 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                     placeholder="e.g., 18"
                     min="0"
@@ -262,7 +280,7 @@ export default function Home() {
                 <input
                   type="checkbox"
                   checked={placeVerification.enabled}
-                  onChange={(e) => setPlaceVerification(prev => ({ ...prev, enabled: e.target.checked }))}
+                  onChange={(e) => setPlaceVerification((prev: typeof placeVerification) => ({ ...prev, enabled: e.target.checked }))}
                   className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                 />
                 <span className="text-sm font-semibold text-gray-900">Place Verification</span>
@@ -275,7 +293,7 @@ export default function Home() {
                   <input
                     type="text"
                     value={placeVerification.communityId}
-                    onChange={(e) => setPlaceVerification(prev => ({ ...prev, communityId: e.target.value }))}
+                    onChange={(e) => setPlaceVerification((prev: typeof placeVerification) => ({ ...prev, communityId: e.target.value }))}
                     className="w-full px-3 py-2 bg-white/50 border border-gray-300/50 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                     placeholder="e.g., 027605"
                   />
@@ -303,7 +321,7 @@ export default function Home() {
                   type="checkbox"
                   checked={transactionAttestation.enabled}
                   onChange={(e) =>
-                    setTransactionAttestation((prev) => ({
+                    setTransactionAttestation((prev: typeof transactionAttestation) => ({
                       ...prev,
                       enabled: e.target.checked,
                     }))
@@ -326,7 +344,7 @@ export default function Home() {
                       type="text"
                       value={transactionAttestation.format}
                       onChange={(e) =>
-                        setTransactionAttestation((prev) => ({
+                        setTransactionAttestation((prev: typeof transactionAttestation) => ({
                           ...prev,
                           format: e.target.value,
                         }))
@@ -343,7 +361,7 @@ export default function Home() {
                       type="text"
                       value={transactionAttestation.context}
                       onChange={(e) =>
-                        setTransactionAttestation((prev) => ({
+                        setTransactionAttestation((prev: typeof transactionAttestation) => ({
                           ...prev,
                           context: e.target.value,
                         }))
@@ -363,7 +381,7 @@ export default function Home() {
                   type="checkbox"
                   checked={transactionInfo.enabled}
                   onChange={(e) =>
-                    setTransactionInfo((prev) => ({
+                    setTransactionInfo((prev: typeof transactionInfo) => ({
                       ...prev,
                       enabled: e.target.checked,
                     }))
@@ -386,7 +404,7 @@ export default function Home() {
                       type="text"
                       value={transactionInfo.info}
                       onChange={(e) =>
-                        setTransactionInfo((prev) => ({
+                        setTransactionInfo((prev: typeof transactionInfo) => ({
                           ...prev,
                           info: e.target.value,
                         }))
@@ -429,14 +447,14 @@ export default function Home() {
           >
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Supported eID Types</h3>
             <div className="grid grid-cols-2 gap-3">
-              {Object.entries(eidTypes).map(([key, checked]) => (
+              {(Object.keys(eidTypes) as Array<keyof typeof eidTypes>).map((key) => (
                 <label
                   key={key}
                   className="flex items-center gap-2 p-3 rounded-xl bg-purple-500/5 cursor-pointer hover:bg-purple-500/10 transition-colors"
                 >
                   <input
                     type="checkbox"
-                    checked={checked}
+                    checked={eidTypes[key]}
                     onChange={(e) => handleEidTypeChange(key, e.target.checked)}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                   />

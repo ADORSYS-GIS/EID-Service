@@ -1,4 +1,4 @@
-# eID Test eService
+# eID Service
 
 Test eService for testing eID authentication flows with eID-Server and eID-Client (AusWeisApp2).
 
@@ -14,9 +14,36 @@ Test eService for testing eID authentication flows with eID-Server and eID-Clien
 
 2. **Configure Environment**
 
+   Create a `.env.local` file in the root of the project. This file is for local development and should not be committed to version control.
+
    ```bash
-   cp .env.local.example .env.local
-   # Edit .env.local with your eID-Server configuration
+   touch .env.local
+   ```
+
+   Then, add the following content to the `.env.local` file, adjusting the values for your environment:
+
+   ```
+   # eID-Server Configuration
+   EID_SERVER_URL="Your server URL"
+   EID_SERVER_ADDRESS="Your server address"
+
+   # Application Configuration
+   NEXT_PUBLIC_BASE_URL=https://localhost:8080
+   PORT=8443
+
+   # HTTPS Server Configuration
+   HTTPS_CERT_PATH=./certs/fullchain.pem
+   HTTPS_KEY_PATH=./certs/client.key
+
+   # TLS/mTLS Configuration (optional)
+   # EID_SERVER_TLS_MODE=normal
+   # EID_SERVER_CERT_PATH=path/to/client-cert.pem
+   # EID_SERVER_KEY_PATH=path/to/client-key.pem
+   # EID_SERVER_CA_PATH=path/to/ca-cert.pem
+   # EID_SERVER_REJECT_UNAUTHORIZED=false
+
+   # Security
+   NODE_ENV=development
    ```
 
 3. **Generate Self-Signed Certificate (for development)**

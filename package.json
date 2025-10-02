@@ -1,7 +1,7 @@
 {
-  "name": "eid-test-eservice",
+  "name": "eid-service",
   "version": "1.0.0",
-  "description": "Test eService for eID authentication flow",
+  "description": "eService for eID authentication flow",
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
